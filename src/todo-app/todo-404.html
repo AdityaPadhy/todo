@@ -1,0 +1,31 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="todo-404">
+  <template>
+    <style>
+      :host {
+        display: block;
+        padding: 10px 20px;
+        margin-top : 100 px;
+        font-family: sans-serif;
+      }
+    </style>
+
+    <a href="/">Head back to home</a>
+  </template>
+
+  <script>
+    class Todo404 extends Polymer.Element {
+      static get is() { return 'todo-404'; }
+      static get properties() {
+        return {
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String,
+        };
+      }
+    }
+
+    window.customElements.define(Todo404.is, Todo404);
+  </script>
+</dom-module>

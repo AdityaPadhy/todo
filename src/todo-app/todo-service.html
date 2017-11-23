@@ -1,0 +1,121 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+
+<link rel="import" href="todo-list.html">
+<link rel="import" href="todo-add.html">
+
+<dom-module id="todo-service">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            .init {
+                font-family: sans-serif;
+                font-size: 15px;
+            }
+        </style>
+
+        <div>
+            <template is="dom-if" if="{{isEmpty}}" restamp>
+                <template is="dom-if" if="{{listTodo}}" restamp>
+                    <paper-button raised class="init" on-tap="initialize">Initialize</paper-button>
+                </template>
+            </template>
+        </div>
+        <div>
+            <template is="dom-if" if="{{!isEmpty}}" restamp>
+                <template is="dom-if" if="{{listTodo}}" restamp>
+                    <todo-list todos={{todos}} is-empty={{isEmpty}}></todo-list>
+                </template>
+            </template>
+        </div>
+        <div>
+            <template is="dom-if" if="{{addTodo}}" restamp>
+                <todo-add></todo-add>
+            </template>
+        </div>
+
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class TodoService extends Polymer.Element {
+
+            static get is() { return 'todo-service'; }
+
+            static get properties() {
+                return {
+                    isEmpty: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    },
+                    listTodo: {
+                        type: Boolean
+                    },
+                    addTodo: {
+                        type: Boolean
+                    },
+                    todos: {
+                        type: Object,
+                        value: [],
+                        notify: true
+                    }
+                };
+            }
+
+            ready() {
+                super.ready();
+                this.isEmpty = this.todos.length == 0;
+            }
+
+            valueChanged() {
+                console.log(this.isEmpty);
+            }
+
+            initialize() {
+                if (this.todos.length == 0) {
+                    this.todos = [
+                        {
+                            id: "id1",
+                            name: "Build",
+                            isFav: false
+                        },
+                        {
+                            id: "id2",
+                            name: "Check",
+                            isFav: false
+                        },
+                        {
+                            id: "id3",
+                            name: "Release",
+                            isFav: false
+                        },
+                        {
+                            id: "id4",
+                            name: "Deploy",
+                            isFav: false
+                        },
+                        {
+                            id: "id5",
+                            name: "Feedback",
+                            isFav: true
+                        }];
+                }
+                this.isEmpty = this.todos.length == 0;
+                this.todos.sort(this.sortComparator);
+            }
+
+            sortComparator(a, b) {
+                return b.isFav - a.isFav;
+            }
+        }
+
+        window.customElements.define(TodoService.is, TodoService);
+    </script>
+</dom-module>

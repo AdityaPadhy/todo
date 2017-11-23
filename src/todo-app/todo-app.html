@@ -1,0 +1,147 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
+
+
+<link rel="lazy-import" href="todo-service.html">
+<link rel="lazy-import" href="todo-add.html">
+<link rel="lazy-import" href="todo-404.html">
+
+<dom-module id="todo-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+
+    app-toolbar {
+      background-color: #4285f4;
+      color: #fff;
+    }
+
+    paper-icon-button {
+      --paper-icon-button-ink-color: white;
+      color : white;
+    }
+
+    .main-title {
+      margin-left: 24px;
+    }
+    app-header {
+      @apply --layout-fixed-top;
+      font-family: sans-serif;
+      color: #fff;
+      --app-header-background-rear-layer: {
+        background-color: #ef6c00;
+      };
+    }
+   
+      .toolbar-buttons {
+        float: right;
+      }
+
+      a {
+        text-decoration: none;
+      }
+    </style>
+
+  <app-location route="{{route}}"></app-location>
+  <app-route
+      route="{{route}}"
+      pattern="/:page"
+      data="{{routeData}}"
+      tail="{{subroute}}">
+  </app-route>
+
+    <app-header-layout>
+      <app-header slot="header">
+        <app-toolbar>
+          <a name="todo-add" href="/">
+              <paper-icon-button name="todo-add" icon="home"></paper-icon-button>
+          </a>
+          <div main-title>TODOs
+          </div>
+          <div class="toolbar-buttons">
+              <iron-selector selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
+                  <a name="todo-add" href="/todo-add">
+                    <paper-icon-button name="todo-add" icon="add"></paper-icon-button>
+                 </a>
+                 <a name="todo-search" href="/todo-search">
+                     <paper-icon-button name="todo-search" icon="search"></paper-icon-button>
+                 </a>
+                </iron-selector>    
+             
+        </div>
+        </app-toolbar>
+      </app-header>
+
+      <iron-pages
+          selected="[[routeData.page]]"
+          attr-for-selected="name"
+          fallback-selection="todo-404"
+          role="main">
+          <todo-service list-todo name="todo-service"></todo-service>
+          <todo-service list-todo name=""></todo-service>
+          <todo-service add-todo name="todo-add"></todo-service>
+          <!-- <todo-add name="todo-add"></todo-add>    -->
+          <todo-404 name="todo-404"></todo-404>  
+      </iron-pages>
+    </app-header-layout>
+  </template>
+
+  <script>
+    class TodoApp extends Polymer.Element {
+      static get is() { return 'todo-app'; }
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_pageChanged',
+          },
+          routeData: Object,
+          subroute: String,
+          // This shouldn't be neccessary, but the Analyzer isn't picking up
+          // Polymer.Element#rootPath
+          rootPath: String
+        };
+      }
+
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+        ];
+      }
+
+      _routePageChanged(page) {
+        // If no page was found in the route data, page will be an empty string.
+        // Deault to 'view1' in that case.
+        this.page = page || 'todo-service';
+      } 
+
+
+      _pageChanged(page) {
+        // Load page import on demand. Show todo list page if fails
+        var resolvedPageUrl = this.resolveUrl(page + '.html');
+        Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            this._showDefault.bind(this),
+            true);
+      }
+
+      _showDefault() {
+        this.page = "todo-404";
+      }
+    }
+
+    window.customElements.define(TodoApp.is, TodoApp);
+  </script>
+</dom-module>

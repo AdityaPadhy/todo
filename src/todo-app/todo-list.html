@@ -1,0 +1,104 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
+
+<dom-module id="todo-list">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            span paper-icon-button {
+                background-color: var(--paper-light-blue-500);
+                color: white;
+                border-radius: 3px;
+                padding: 2px;
+                width: 25px;
+                height: 30px;
+            }
+
+            .list-todo {
+                font-family: sans-serif;
+                font-size: 25px;
+                width: 500px;
+                margin-left: 100px;
+            }
+                        
+            .btn-set {
+                margin-left: 30 px;
+                float: right;
+            }
+        </style>
+
+        <div class="list-todo">
+            <template id="todoList" is="dom-repeat" items="{{todos}}" mutable-data>
+                <div class="row">
+                    <paper-icon-button icon="arrow-forward"></paper-icon-button>
+                    <span>{{item.name}}</span>
+                    <span class="btn-set">
+                        <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+                        <paper-icon-button style="color : [[getColor(item)]]" icon="star" on-tap="toggleFavorite">star</paper-icon-button>
+                        <span>
+                </div>
+            </template>
+        </div>
+
+
+
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class TodoList extends Polymer.Element {
+
+            static get is() { return 'todo-list'; }
+
+            static get properties() {
+                return {
+                    isEmpty: {
+                        type: Boolean,
+                        value: false,
+                        notify: true
+                    },
+                    todos: {
+                        type: Object,
+                        value: [],
+                        notify: true
+                    }
+                };
+            }
+
+            getColor(item) {
+                return item.isFav ? "yellow" : "white";
+            }
+
+            sortComparator(a, b) {
+                return b.isFav - a.isFav;
+            }
+
+            deleteTodo(item) {
+                this.splice('todos', item.model.index, 1);
+                //this.set('todos', );
+
+                this.isEmpty = this.todos.length == 0;
+            }
+
+            toggleFavorite(item) {
+                this.todos[item.model.index].isFav = !this.todos[item.model.index].isFav;
+                //this.notifyPath('todos');
+                //this.todos = this.todos.slice();
+                this.notifySplices('todos', [{ index: item.model.index }]);
+                this.todos.sort(this.sortComparator);
+            }
+        }
+
+        window.customElements.define(TodoList.is, TodoList);
+    </script>
+</dom-module>
