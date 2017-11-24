@@ -5,6 +5,8 @@
 <link rel="import" href="../../bower_components/polymer/lib/elements/dom-repeat.html">
 <link rel="import" href="../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../../bower_components/app-route/app-route.html">
+<link rel="import" href="../../bower_components/app-route/app-location.html">
 
 <dom-module id="todo-list">
     <template>
@@ -36,15 +38,24 @@
 
             .labelTxt {
                 font-family: sans-serif;
-                font-size: 20px;
                 color: grey;
                 text-align: center;
+            }
+
+            .labelTxt a {
+                text-decoration: none;
+            }
+
+            .labelTxt paper-button {
+                margin : 10px;
             }
         </style>
 
         <div class="labelTxt">
             <template is="dom-if" if="{{isEmpty}}" restamp>
-                <iron-label>There are no todos. Add todos to show in the list</iron-label>
+                <iron-label>There are no todos. Start by adding some</iron-label>
+                <br>
+                <paper-button raised class="green"><a id="redirect" href="/todo-add">ADD</a></paper-button>
             </template>
         </div>
 
