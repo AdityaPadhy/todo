@@ -9,10 +9,9 @@
 <link rel="import" href="../../bower_components/app-route/app-route.html">
 <link rel="import" href="../../bower_components/app-route/app-location.html">
 
-
-<link rel="lazy-import" href="todo-service.html">
-<link rel="lazy-import" href="todo-add.html">
-<link rel="lazy-import" href="todo-404.html">
+<link rel="import" href="todo-list.html">
+<link rel="import" href="todo-add.html">
+<link rel="import" href="todo-404.html">
 
 <dom-module id="todo-app">
   <template>
@@ -21,28 +20,30 @@
         display: block;
       }
 
-    app-toolbar {
-      background-color: #4285f4;
-      color: #fff;
-    }
+      app-toolbar {
+        background-color: #4285f4;
+        color: #fff;
+      }
 
-    paper-icon-button {
-      --paper-icon-button-ink-color: white;
-      color : white;
-    }
+      paper-icon-button {
+        --paper-icon-button-ink-color: white;
+        color: white;
+      }
 
-    .main-title {
-      margin-left: 24px;
-    }
-    app-header {
-      @apply --layout-fixed-top;
-      font-family: sans-serif;
-      color: #fff;
-      --app-header-background-rear-layer: {
-        background-color: #ef6c00;
-      };
-    }
-   
+      .main-title {
+        margin-left: 24px;
+      }
+
+      app-header {
+        @apply --layout-fixed-top;
+        font-family: sans-serif;
+        color: #fff;
+        --app-header-background-rear-layer: {
+          background-color: #ef6c00;
+        }
+        ;
+      }
+
       .toolbar-buttons {
         float: right;
       }
@@ -52,46 +53,37 @@
       }
     </style>
 
-  <app-location route="{{route}}"></app-location>
-  <app-route
-      route="{{route}}"
-      pattern="/:page"
-      data="{{routeData}}"
-      tail="{{subroute}}">
-  </app-route>
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}">
+    </app-route>
 
     <app-header-layout>
       <app-header slot="header">
         <app-toolbar>
           <a name="todo-add" href="/">
-              <paper-icon-button name="todo-add" icon="home"></paper-icon-button>
+            <paper-icon-button name="todo-add" icon="home"></paper-icon-button>
           </a>
           <div main-title>TODOs
           </div>
           <div class="toolbar-buttons">
-              <iron-selector selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
-                  <a name="todo-add" href="/todo-add">
-                    <paper-icon-button name="todo-add" icon="add"></paper-icon-button>
-                 </a>
-                 <a name="todo-search" href="/todo-search">
-                     <paper-icon-button name="todo-search" icon="search"></paper-icon-button>
-                 </a>
-                </iron-selector>    
-             
-        </div>
+            <iron-selector selected="[[routeData.page]]" attr-for-selected="name" role="navigation">
+              <a name="todo-add" href="/todo-add">
+                <paper-icon-button name="todo-add" icon="add"></paper-icon-button>
+              </a>
+              <a name="todo-search" href="/todo-search">
+                <paper-icon-button name="todo-search" icon="search"></paper-icon-button>
+              </a>
+            </iron-selector>
+
+          </div>
         </app-toolbar>
       </app-header>
 
-      <iron-pages
-          selected="[[routeData.page]]"
-          attr-for-selected="name"
-          fallback-selection="todo-404"
-          role="main">
-          <todo-service list-todo name="todo-service"></todo-service>
-          <todo-service list-todo name=""></todo-service>
-          <todo-service add-todo name="todo-add"></todo-service>
-          <!-- <todo-add name="todo-add"></todo-add>    -->
-          <todo-404 name="todo-404"></todo-404>  
+      <iron-pages selected="[[routeData.page]]" attr-for-selected="name" fallback-selection="todo-404" role="main">
+        <todo-list todos={{todos}} is-empty={{isEmpty}} name="todo-list"></todo-list>
+        <todo-list todos={{todos}} is-empty={{isEmpty}} name=""></todo-list>
+        <todo-add todo={{todo}} name="todo-add"></todo-add>
+        <todo-404 name="todo-404"></todo-404>
       </iron-pages>
     </app-header-layout>
   </template>
@@ -104,42 +96,80 @@
           page: {
             type: String,
             reflectToAttribute: true,
-            observer: '_pageChanged',
+            //observer: '_pageChanged',
           },
           routeData: Object,
           subroute: String,
-          // This shouldn't be neccessary, but the Analyzer isn't picking up
-          // Polymer.Element#rootPath
-          rootPath: String
+          rootPath: String,
+          isEmpty: {
+            type: Boolean,
+            value: false,
+            notify: true
+          },
+          todos: {
+            type: Object,
+            value: [],
+            notify: true
+          },
+          todo: {
+            type: Object,
+            value: {},
+            notify: true
+          }
         };
+      }
+
+      ready() {
+        super.ready();
+        this.isEmpty = this.todos.length == 0;
+        this.todos.sort(this.sortComparator); // check if required
       }
 
       static get observers() {
         return [
-          '_routePageChanged(routeData.page)',
+          //'_routePageChanged(routeData.page)',
+          'todoAdd(todo.name, todo.isFav)'
         ];
       }
 
-      _routePageChanged(page) {
-        // If no page was found in the route data, page will be an empty string.
-        // Deault to 'view1' in that case.
-        this.page = page || 'todo-service';
-      } 
 
-
-      _pageChanged(page) {
-        // Load page import on demand. Show todo list page if fails
-        var resolvedPageUrl = this.resolveUrl(page + '.html');
-        Polymer.importHref(
-            resolvedPageUrl,
-            null,
-            this._showDefault.bind(this),
-            true);
+      todoAdd() {
+        if (this.todo.name != undefined && this.todo.isFav != undefined) {
+          let todoTemp = {};
+          todoTemp.name = this.todo.name;
+          todoTemp.isFav = this.todo.isFav;
+          this.push('todos', todoTemp);
+          this.todos.sort(this.sortComparator);
+          this.isEmpty = this.todos.length == 0;
+        }
       }
 
-      _showDefault() {
-        this.page = "todo-404";
+
+      sortComparator(a, b) {
+        return b.isFav - a.isFav;
       }
+
+
+      // _routePageChanged(page) {
+      //   // If no page was found in the route data, page will be an empty string.
+      //   // Deault to 'view1' in that case.
+      //   this.page = page || 'todo-service';
+      // }
+
+
+      // _pageChanged(page) {
+      //   // Load page import on demand. Show todo list page if fails
+      //   var resolvedPageUrl = this.resolveUrl(page + '.html');
+      //   Polymer.importHref(
+      //     resolvedPageUrl,
+      //     null,
+      //     this._showDefault.bind(this),
+      //     true);
+      // }
+
+      // _showDefault() {
+      //   this.page = "todo-404";
+      // }
     }
 
     window.customElements.define(TodoApp.is, TodoApp);

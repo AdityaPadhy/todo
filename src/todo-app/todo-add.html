@@ -2,6 +2,7 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 
 <dom-module id="todo-add">
@@ -9,15 +10,26 @@
         <style>
             :host {
                 display: block;
-                margin-top : 100px;
-            }           
+                margin-top : 30px;
+            }    
+
+            .fav {
+                margin-top : 10px;
+                font-family: sans-serif;
+            }   
+
+            paper-button {
+                margin-top : 10px;
+            }
+
         </style>
 
         <div>    
-            <paper-input label="TODO">
+            <paper-input label="TODO" value="{{input}}">
                 <iron-icon icon="create" slot="prefix"></iron-icon>
             </paper-input>
-            <paper-button raised class="green">save</paper-button>
+            <div class="fav">Favorite : <paper-toggle-button on-change="updateFav"></paper-toggle-button></div>
+            <paper-button raised class="green" on-tap="save">save</paper-button>
         </div>
      </template>
 
@@ -27,8 +39,25 @@
             static get is() { return 'todo-add'; }
             static get properties() {
                 return {
-                 
+                 input: {
+                     type : String,
+                     value : ""
+                 },
+                 isFav : {
+                     type : Boolean,
+                     value : false
+                 }                 
                 };
+            }
+
+            updateFav() {
+                this.isFav = !this.isFav;
+            }
+
+            save() {
+                this.todo.name = this.input;
+                this.todo.isFav = this.isFav;
+                this.notifyPath('todo.name', 'todo.isFav');
             }
         }
 
