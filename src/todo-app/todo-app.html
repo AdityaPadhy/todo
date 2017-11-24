@@ -141,6 +141,8 @@
           this.push('todos', todoTemp);
           this.todos.sort(this.sortComparator);
           this.isEmpty = this.todos.length == 0;
+
+          this.set('route.path', '/');
         }
       }
 
