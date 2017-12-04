@@ -13,6 +13,10 @@
         <style>
             :host {
                 display: block;
+                margin: auto;
+                width: 70%;
+                border: 2px solid green;
+                padding: 10px;
             }
 
             span paper-icon-button {
@@ -24,11 +28,21 @@
                 height: 30px;
             }
 
-            .list-todo {
+            .list-todo-pending {
                 font-family: sans-serif;
                 font-size: 25px;
+            }
+
+            .list-todo-done {
+                font-family: sans-serif;
+                font-size: 25px;
+                text-decoration-color: grey;
                 width: 500px;
                 margin-left: 100px;
+            }
+
+            .list-todo-done span {
+                color: grey;
             }
 
             .btn-set {
@@ -47,7 +61,7 @@
             }
 
             .labelTxt paper-button {
-                margin : 10px;
+                margin: 10px;
             }
         </style>
 
@@ -55,24 +69,50 @@
             <template is="dom-if" if="{{isEmpty}}" restamp>
                 <iron-label>There are no todos. Start by adding some</iron-label>
                 <br>
-                <paper-button raised class="green"><a id="redirect" href="/todo-add">ADD</a></paper-button>
+                <paper-button raised class="green">
+                    <a id="redirect" href="/todo-add">ADD</a>
+                </paper-button>
             </template>
         </div>
 
-        <div class="list-todo">
+        <div class="list-todo-pending">
             <template id="todoList" is="dom-repeat" items="{{todos}}" mutable-data>
-                <div class="row">
-                    <paper-icon-button icon="arrow-forward"></paper-icon-button>
-                    <span>{{item.name}}</span>
-                    <span class="btn-set">
-                        <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
-                        <paper-icon-button style="color : [[getColor(item)]]" icon="star" on-tap="toggleFavorite">star</paper-icon-button>
-                        <span>
-                </div>
+                <template is="dom-if" if="{{!item.isDone}}" restamp>
+                    <div class="row">
+                        <paper-icon-button icon="arrow-forward"></paper-icon-button>
+                        <span>{{item.name}}</span>
+                        <span class="btn-set">
+                            <paper-icon-button icon="done" on-tap="markDone">done</paper-icon-button>
+                            <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+                            <paper-icon-button style="color : [[getColor(item)]]" icon="star" on-tap="toggleFavorite">star</paper-icon-button>
+                            <span>
+                    </div>
+                </template>
             </template>
         </div>
 
+        <hr>
 
+        <div class="labelTxt">
+            <template is="dom-if" if="{{isDoneEmpty}}" restamp>
+                <iron-label>There are no todos marked as done</iron-label>
+                <br>
+            </template>
+        </div>
+
+        <div class="list-todo-done">
+            <template id="todoList" is="dom-repeat" items="{{todos}}" mutable-data>
+                <template is="dom-if" if="{{item.isDone}}" restamp>
+                    <div class="row">
+                        <paper-icon-button icon="arrow-forward"></paper-icon-button>
+                        <span>{{item.name}}</span>
+                        <span class="btn-set">
+                            <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+                        </span>
+                    </div>
+                </template>
+            </template>
+        </div>
 
     </template>
 
@@ -90,6 +130,11 @@
                     isEmpty: {
                         type: Boolean,
                         value: false,
+                        notify: true
+                    },
+                    isDoneEmpty: {
+                        type: Boolean,
+                        value: true,
                         notify: true
                     },
                     todos: {
@@ -110,9 +155,15 @@
 
             deleteTodo(item) {
                 this.splice('todos', item.model.index, 1);
-                //this.set('todos', );
-
                 this.isEmpty = this.todos.length == 0;
+                this.__checkIsDoneEmpty();
+            }
+
+            markDone(item) {
+                let todoTemp = this.todos[item.model.index];
+                todoTemp.isDone = true;
+                this.notifySplices('todos', [{ index: item.model.index }]);
+                this.__checkIsDoneEmpty();
             }
 
             toggleFavorite(item) {
@@ -121,6 +172,16 @@
                 //this.todos = this.todos.slice();
                 this.notifySplices('todos', [{ index: item.model.index }]);
                 this.todos.sort(this.sortComparator);
+            }
+
+            __checkIsDoneEmpty() {            
+                for (let todo of this.todos) {
+                    if (todo.isDone) {
+                        this.isDoneEmpty = false;
+                        return;
+                    }
+                }
+                this.isDoneEmpty = true;
             }
         }
 

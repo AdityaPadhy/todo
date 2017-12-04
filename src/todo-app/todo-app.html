@@ -96,7 +96,6 @@
           page: {
             type: String,
             reflectToAttribute: true,
-            //observer: '_pageChanged',
           },
           routeData: Object,
           subroute: String,
@@ -123,13 +122,18 @@
         super.ready();
         this.isEmpty = this.todos.length == 0;
         this.todos.sort(this.sortComparator); // check if required
+        this.addEventListener('add-todo', this.addTodo);
       }
 
       static get observers() {
         return [
-          //'_routePageChanged(routeData.page)',
           'todoAdd(todo.name, todo.isFav)'
         ];
+      }
+
+      addTodo(e, input) {
+        console.log(e);
+        console.log(input);
       }
 
 
@@ -138,6 +142,7 @@
           let todoTemp = {};
           todoTemp.name = this.todo.name;
           todoTemp.isFav = this.todo.isFav;
+          todoTemp.isDone = false;
           this.push('todos', todoTemp);
           this.todos.sort(this.sortComparator);
           this.isEmpty = this.todos.length == 0;
@@ -150,28 +155,6 @@
       sortComparator(a, b) {
         return b.isFav - a.isFav;
       }
-
-
-      // _routePageChanged(page) {
-      //   // If no page was found in the route data, page will be an empty string.
-      //   // Deault to 'view1' in that case.
-      //   this.page = page || 'todo-service';
-      // }
-
-
-      // _pageChanged(page) {
-      //   // Load page import on demand. Show todo list page if fails
-      //   var resolvedPageUrl = this.resolveUrl(page + '.html');
-      //   Polymer.importHref(
-      //     resolvedPageUrl,
-      //     null,
-      //     this._showDefault.bind(this),
-      //     true);
-      // }
-
-      // _showDefault() {
-      //   this.page = "todo-404";
-      // }
     }
 
     window.customElements.define(TodoApp.is, TodoApp);
