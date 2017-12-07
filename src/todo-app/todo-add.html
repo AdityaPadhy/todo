@@ -3,6 +3,7 @@
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../bower_components/iron-form/iron-form.html">
 
 
 <dom-module id="todo-add">
@@ -14,27 +15,33 @@
                 width: 70%;
                 border: 2px solid white;
                 padding: 10px;
-            }    
-
-            .fav {
-                margin-top : 10px;
-                font-family: sans-serif;
-            }   
-
-            paper-button {
-                margin-top : 10px;
             }
 
+            .fav {
+                margin-top: 10px;
+                font-family: sans-serif;
+            }
+
+            paper-button {
+                margin-top: 10px;
+            }
         </style>
 
-        <div>    
-            <paper-input label="TODO" value="{{input}}">
-                <iron-icon icon="create" slot="prefix"></iron-icon>
-            </paper-input>
-            <div class="fav">Favorite : <paper-toggle-button on-change="updateFav"></paper-toggle-button></div>
-            <paper-button raised class="green" on-tap="save">save</paper-button>
-        </div>
-     </template>
+        <iron-form id="addForm">
+            <form>
+                <div>
+                    <paper-input required allowed-pattern="[a-zA-Z1-9]" label="Title" error-message="Title is required and can be only numbers and letters"
+                        value="{{input}}">
+                        <iron-icon icon="create" slot="prefix"></iron-icon>
+                    </paper-input>
+                    <div class="fav">Favorite :
+                        <paper-toggle-button on-change="updateFav"></paper-toggle-button>
+                    </div>
+                    <paper-button raised class="green" on-tap="submitForm">save</paper-button>
+                </div>
+            </form>
+        </iron-form>
+    </template>
 
     <script>
         class TodoAdd extends Polymer.Element {
@@ -42,25 +49,35 @@
             static get is() { return 'todo-add'; }
             static get properties() {
                 return {
-                 input: {
-                     type : String,
-                     value : ""
-                 },
-                 isFav : {
-                     type : Boolean,
-                     value : false
-                 }                 
+                    input: {
+                        type: String,
+                        value: "DDD"
+                    },
+                    isFav: {
+                        type: Boolean,
+                        value: false
+                    }
                 };
+            }
+
+            ready() {
+                super.ready();
+                this.$.addForm.reset();
             }
 
             updateFav() {
                 this.isFav = !this.isFav;
             }
 
-            save() {
-                this.todo.name = this.input;
-                this.todo.isFav = this.isFav;
-                this.notifyPath('todo.name', 'todo.isFav');
+            submitForm(event) {
+                event.preventDefault();
+                let todo = {};
+                todo.name = this.input;
+                todo.isFav = this.isFav;
+                if (this.$.addForm.validate()) {
+                    this.$.addForm.reset();
+                    this.dispatchEvent(new CustomEvent('addTodo', { detail: todo }));
+                }
             }
         }
 

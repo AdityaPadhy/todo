@@ -82,7 +82,7 @@
       <iron-pages selected="[[routeData.page]]" attr-for-selected="name" fallback-selection="todo-404" role="main">
         <todo-list todos={{todos}} is-empty={{isEmpty}} name="todo-list"></todo-list>
         <todo-list todos={{todos}} is-empty={{isEmpty}} name=""></todo-list>
-        <todo-add todo={{todo}} name="todo-add"></todo-add>
+        <todo-add id="myAdd" name="todo-add"></todo-add>
         <todo-404 name="todo-404"></todo-404>
       </iron-pages>
     </app-header-layout>
@@ -109,11 +109,6 @@
             type: Object,
             value: [],
             notify: true
-          },
-          todo: {
-            type: Object,
-            value: {},
-            notify: true
           }
         };
       }
@@ -121,36 +116,19 @@
       ready() {
         super.ready();
         this.isEmpty = this.todos.length == 0;
-        this.todos.sort(this.sortComparator); // check if required
-        this.addEventListener('add-todo', this.addTodo);
+        this.todos.sort(this.sortComparator);
+        this.$.myAdd.addEventListener('addTodo', event => this.addTodo(event));
       }
 
-      static get observers() {
-        return [
-          'todoAdd(todo.name, todo.isFav)'
-        ];
-      }
-
-      addTodo(e, input) {
-        console.log(e);
-        console.log(input);
-      }
-
-
-      todoAdd() {
-        if (this.todo.name != undefined && this.todo.isFav != undefined) {
-          let todoTemp = {};
-          todoTemp.name = this.todo.name;
-          todoTemp.isFav = this.todo.isFav;
-          todoTemp.isDone = false;
-          this.push('todos', todoTemp);
+      addTodo(e) {
+        let todo = e.detail;
+        if (todo.name != undefined && todo.isFav != undefined) {
+          this.push('todos', todo);
           this.todos.sort(this.sortComparator);
           this.isEmpty = this.todos.length == 0;
-
           this.set('route.path', '/');
         }
       }
-
 
       sortComparator(a, b) {
         return b.isFav - a.isFav;
