@@ -19,6 +19,12 @@
                 padding: 10px;
             }
 
+            .row {
+                background : rgb(233, 236, 236);
+                height: 50px;
+                margin-bottom: 5px;
+            }
+
             span paper-icon-button {
                 background-color: var(--paper-light-blue-500);
                 color: white;
@@ -44,6 +50,8 @@
 
             .btn-set {
                 float: right;
+                margin-top : 10px;
+                margin-right: 10px;
             }
 
             .labelTxt {
@@ -78,6 +86,7 @@
                         <paper-icon-button icon="arrow-forward"></paper-icon-button>
                         <span>{{item.name}}</span>
                         <span class="btn-set">
+                            <paper-icon-button icon="assignment" on-tap="selectTodo">assignment</paper-icon-button>
                             <paper-icon-button icon="done" on-tap="markDone">done</paper-icon-button>
                             <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
                             <paper-icon-button style="color : [[getColor(item)]]" icon="star" on-tap="toggleFavorite">star</paper-icon-button>
@@ -102,8 +111,9 @@
                     <div class="row">
                         <paper-icon-button icon="arrow-forward"></paper-icon-button>
                         <span>{{item.name}}</span>
+                        <iron-label on-tap="selectTodo" data-selected-todo$="{{selectedTodo}}">{{item.name}}</iron-label>
                         <span class="btn-set">
-                            <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+                            <paper-icon-button  icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
                         </span>
                     </div>
                 </template>
@@ -137,8 +147,17 @@
                         type: Object,
                         value: [],
                         notify: true
+                    },
+                    selectedTodo : {
+                        type: Object,
+                        notify: true
                     }
                 };
+            }
+
+            selectTodo(e) {
+                let todo = this.todos[e.model.index];
+                this.dispatchEvent(new CustomEvent('selectTodo', { detail: todo }));
             }
 
             getColor(item) {

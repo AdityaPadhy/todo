@@ -1,0 +1,85 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
+
+<dom-module id="todo-details">
+    <template>
+        <style>
+            :host {
+                display: block;
+                margin: auto;
+                width: 70%;
+                border: 2px solid green;
+                padding: 10px;
+                font-family: sans-serif;
+            }
+
+            paper-icon-button {
+                background-color: var(--paper-light-blue-500);
+                color: white;
+                border-radius: 3px;
+                padding: 2px;
+                width: 100px;
+                height: 60px;
+            }
+
+            .todoHead {
+                
+            }
+
+           
+        </style>
+    
+        <div class="todoHead">
+                <iron-label>Name : </iron-label>
+                <iron-label>{{todo.name}}</iron-label>
+        </div>
+
+        <div class="todoDetails">
+            <iron-label>Details : </iron-label>
+            <iron-label>{{todo.details}}</iron-label>
+        </div>
+
+        <div class="todoFav">
+            <iron-label>Favorite : </iron-label>
+            <paper-checkbox checked="{{todo.isFav}}" disabled></paper-checkbox>
+        </div>
+
+        <br><br>
+
+        <div class="buttonSet">
+                <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+        </div>
+    </template>
+
+    <script>
+        /**
+         * @customElement
+         * @polymer
+         */
+        class TodoDetails extends Polymer.Element {
+
+            static get is() { return 'todo-details'; }
+
+            static get properties() {
+                return {
+                    todo: {
+                        type: Object,                        
+                        notify: true
+                    }
+                };
+            }
+
+            deleteTodo(item) {
+                this.splice('todos', item.model.index, 1);
+                this.isEmpty = this.todos.length == 0;
+                this.__checkIsDoneEmpty();
+            }
+        }    
+
+        window.customElements.define(TodoDetails.is, TodoDetails);
+    </script>
+</dom-module>

@@ -2,8 +2,9 @@
 <link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../bower_components/iron-autogrow-textarea/iron-autogrow-textarea.html">
 
 
 <dom-module id="todo-add">
@@ -15,29 +16,45 @@
                 width: 70%;
                 border: 2px solid white;
                 padding: 10px;
-            }
-
-            .fav {
-                margin-top: 10px;
                 font-family: sans-serif;
             }
 
+            iron-autogrow-textarea {
+                display: block;
+                min-width: 400px;
+                min-height: 300px;
+                margin: 5px 0;
+            }
+
+            .fav {
+                margin-top: 20px;
+            }
+
+            paper-input {
+                margin-bottom: 10px;
+            }
+
             paper-button {
-                margin-top: 10px;
+                margin-top: 20px;
             }
         </style>
 
         <iron-form id="addForm">
             <form>
                 <div>
-                    <paper-input required allowed-pattern="[a-zA-Z1-9]" label="Title" error-message="Title is required and can be only numbers and letters"
+                    <paper-input required allowed-pattern="[a-zA-Z1-9 ]" label="Title" error-message="Title is required and can be only numbers and letters"
                         value="{{input}}">
                         <iron-icon icon="create" slot="prefix"></iron-icon>
                     </paper-input>
+                    Details:
+                    <iron-autogrow-textarea required label="details" error-message="No details" value="{{details}}"></iron-autogrow-textarea>
                     <div class="fav">Favorite :
-                        <paper-toggle-button on-change="updateFav"></paper-toggle-button>
+                        <paper-checkbox checked={{isFav}}></paper-checkbox>
                     </div>
-                    <paper-button raised class="green" on-tap="submitForm">save</paper-button>
+                    <div>
+                        <paper-button raised class="green" on-tap="submitForm">save</paper-button>
+                    </div>
+
                 </div>
             </form>
         </iron-form>
@@ -50,32 +67,29 @@
             static get properties() {
                 return {
                     input: {
-                        type: String,
-                        value: "DDD"
+                        type: String
+                    },
+                    details: {
+                        type: String
                     },
                     isFav: {
                         type: Boolean,
-                        value: false
+                        value: false,
+                        notify: true
                     }
                 };
-            }
-
-            ready() {
-                super.ready();
-                this.$.addForm.reset();
-            }
-
-            updateFav() {
-                this.isFav = !this.isFav;
             }
 
             submitForm(event) {
                 event.preventDefault();
                 let todo = {};
                 todo.name = this.input;
+                todo.details = this.details;
                 todo.isFav = this.isFav;
                 if (this.$.addForm.validate()) {
-                    this.$.addForm.reset();
+                    this.input = undefined;
+                    this.isFav = false;
+                    this.details = undefined;
                     this.dispatchEvent(new CustomEvent('addTodo', { detail: todo }));
                 }
             }

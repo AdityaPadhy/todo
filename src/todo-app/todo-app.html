@@ -12,6 +12,7 @@
 <link rel="import" href="todo-list.html">
 <link rel="import" href="todo-add.html">
 <link rel="import" href="todo-404.html">
+<link rel="import" href="todo-details.html">
 
 <dom-module id="todo-app">
   <template>
@@ -81,8 +82,9 @@
 
       <iron-pages selected="[[routeData.page]]" attr-for-selected="name" fallback-selection="todo-404" role="main">
         <todo-list todos={{todos}} is-empty={{isEmpty}} name="todo-list"></todo-list>
-        <todo-list todos={{todos}} is-empty={{isEmpty}} name=""></todo-list>
+        <todo-list id="todoList" todos={{todos}} is-empty={{isEmpty}} name=""></todo-list>
         <todo-add id="myAdd" name="todo-add"></todo-add>
+        <todo-details id="tdDetails" todo={{todo}} name="todo-details"></todo-details>
         <todo-404 name="todo-404"></todo-404>
       </iron-pages>
     </app-header-layout>
@@ -109,6 +111,10 @@
             type: Object,
             value: [],
             notify: true
+          },
+          todo : {
+            type : Object,
+            notify : true
           }
         };
       }
@@ -118,6 +124,12 @@
         this.isEmpty = this.todos.length == 0;
         this.todos.sort(this.sortComparator);
         this.$.myAdd.addEventListener('addTodo', event => this.addTodo(event));
+        this.$.tdDetails.addEventListener('selectTodo', event => this.showTodo(event));
+      }
+
+      showTodo(e) {
+          this.todo = e.details;
+          this.set('route.path', '/todo-details');
       }
 
       addTodo(e) {
