@@ -12,9 +12,15 @@
                 display: block;
                 margin: auto;
                 width: 70%;
-                border: 2px solid green;
                 padding: 10px;
                 font-family: sans-serif;
+            }
+
+            iron-autogrow-textarea {
+                display: block;
+                min-height: 300px;
+                margin: 5px 0;
+                width: 100%;
             }
 
             paper-icon-button {
@@ -22,37 +28,46 @@
                 color: white;
                 border-radius: 3px;
                 padding: 2px;
-                width: 100px;
-                height: 60px;
+                width: 50px;
+                height: 40px;
             }
 
-            .todoHead {
-                
+            div {
+                margin-top: 10px;
             }
 
-           
+            .buttonSet {
+                float: right;
+            }
+
+            .content {
+                margin-top: 50px;
+            }
         </style>
-    
-        <div class="todoHead">
-                <iron-label>Name : </iron-label>
-                <iron-label>{{todo.name}}</iron-label>
-        </div>
-
-        <div class="todoDetails">
-            <iron-label>Details : </iron-label>
-            <iron-label>{{todo.details}}</iron-label>
-        </div>
-
-        <div class="todoFav">
-            <iron-label>Favorite : </iron-label>
-            <paper-checkbox checked="{{todo.isFav}}" disabled></paper-checkbox>
-        </div>
-
-        <br><br>
 
         <div class="buttonSet">
-                <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+            <paper-icon-button icon="delete" on-tap="deleteTodo">delete</paper-icon-button>
+            <paper-icon-button icon="update" on-tap="updateTodo">update</paper-icon-button>
+            <paper-icon-button icon="star" style="color : {{getColor(todo.isFav)}}" on-tap="toggleFav">favorite</paper-icon-button>
         </div>
+        <div class="content">
+            <div class="todoHead">
+                <paper-input readonly label="Title" value="{{todo.name}}">
+                    <iron-icon icon="create" slot="prefix"></iron-icon>
+                </paper-input>
+            </div>
+
+            <div class="todoDetails">
+                <iron-label>Details : </iron-label>
+                <iron-autogrow-textarea readonly value="{{todo.details}}"></iron-autogrow-textarea>
+            </div>
+
+            <div class="todoFav">
+                <iron-label>Favorite : </iron-label>
+                <paper-checkbox checked="{{todo.isFav}}" disabled></paper-checkbox>
+            </div>
+        </div>
+
     </template>
 
     <script>
@@ -67,18 +82,22 @@
             static get properties() {
                 return {
                     todo: {
-                        type: Object,                        
+                        type: Object,
                         notify: true
                     }
                 };
             }
 
+            getColor(isFav) {
+                return isFav ? "yellow" : "white";
+            }
+            
             deleteTodo(item) {
                 this.splice('todos', item.model.index, 1);
                 this.isEmpty = this.todos.length == 0;
                 this.__checkIsDoneEmpty();
             }
-        }    
+        }
 
         window.customElements.define(TodoDetails.is, TodoDetails);
     </script>

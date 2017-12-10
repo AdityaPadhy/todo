@@ -21,9 +21,9 @@
 
             iron-autogrow-textarea {
                 display: block;
-                min-width: 400px;
                 min-height: 300px;
                 margin: 5px 0;
+                width:100%;
             }
 
             .fav {
@@ -47,7 +47,7 @@
                         <iron-icon icon="create" slot="prefix"></iron-icon>
                     </paper-input>
                     Details:
-                    <iron-autogrow-textarea required label="details" error-message="No details" value="{{details}}"></iron-autogrow-textarea>
+                    <iron-autogrow-textarea required row="4" label="details" error-message="No details" value="{{details}}"></iron-autogrow-textarea>
                     <div class="fav">Favorite :
                         <paper-checkbox checked={{isFav}}></paper-checkbox>
                     </div>
